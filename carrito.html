@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title> · Carrito</title>
+  <title>Danone+ · Carrito</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="description" content="Carrito con productos Danone agregados desde recetas personalizadas." />
 </head>
@@ -11,18 +11,17 @@
   <!-- Header -->
   <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
     <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a class="flex items-center gap-2" href="index.html">
+      <a class="flex items-center gap-2" href="welcome.html">
         <img src="assets/logo-danone.png" alt="Danone+" class="h-9 w-auto" />
-        <span class="font-semibold"></span>
+        <span class="font-semibold">Danone+</span>
       </a>
-      <nav class="text-sm text-slate-600 hidden sm:flex gap-6">
+      <nav class="text-sm text-slate-600 hidden sm:flex gap-6 items-center">
         <a href="welcome.html" class="hover:text-slate-900">Bienvenida</a>
         <a href="login.html" class="hover:text-slate-900">Login</a>
         <a href="onboarding.html" class="hover:text-slate-900">Onboarding</a>
         <a href="recetas.html" class="hover:text-slate-900">Recetas</a>
-        <a href="carrito.html" class="hover:text-slate-900">Carrito</a>
-      </nav>
-
+        <a href="carrito.html" class="font-medium text-slate-900">Carrito</a>
+        <button id="logout" class="text-red-600 ml-4">Cerrar sesión</button>
       </nav>
     </div>
   </header>
@@ -55,8 +54,9 @@
 
   <script>
     const $ = (s)=>document.querySelector(s);
-    function formatMoney(n){ return `$${n.toFixed(2)}`; }
+    const formatMoney = (n)=> `$${n.toFixed(2)}`;
 
+    // Catálogo (mismo que en recetas para calcular totales)
     const PRODUCTS = {
       "Activia Natural 1L": 42.0,
       "Danone Yogurt Natural 1L": 38.0,
@@ -68,12 +68,8 @@
       "Miel 250g": 40.0
     };
 
-    function loadCart(){
-      return JSON.parse(localStorage.getItem("cart") || "{}");
-    }
-    function saveCart(cart){
-      localStorage.setItem("cart", JSON.stringify(cart));
-    }
+    function loadCart(){ return JSON.parse(localStorage.getItem("cart") || "{}"); }
+    function saveCart(c){ localStorage.setItem("cart", JSON.stringify(c)); }
 
     function renderCart(){
       const cart = loadCart();
@@ -82,8 +78,8 @@
 
       let count = 0;
       let total = 0;
-
       const entries = Object.entries(cart);
+
       if(entries.length === 0){
         list.innerHTML = `<li class="p-5 text-slate-600">Tu carrito está vacío. Agrega productos desde <a class="text-sky-600 underline" href="recetas.html">Recetas</a>.</li>`;
       }
@@ -127,6 +123,7 @@
       $("#cart-total").textContent = formatMoney(total);
     }
 
+    // Botones
     $("#checkout").addEventListener("click", ()=>{
       const cart = loadCart();
       if(Object.keys(cart).length === 0) return;
@@ -139,8 +136,16 @@
       renderCart();
     });
 
+    // Logout
+    $("#logout")?.addEventListener("click", ()=>{
+      localStorage.clear();
+      window.location.href="welcome.html";
+    });
+
+    // Init
     renderCart();
   </script>
 </body>
 </html>
+
 
