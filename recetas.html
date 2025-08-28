@@ -3,25 +3,25 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title> · Recetas</title>
+  <title>Danone+ · Recetas</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <meta name="description" content="Recetas personalizadas y carrito inteligente con productos Danone." />
+  <meta name="description" content="Recetas personalizadas con productos Danone y carrito inteligente." />
 </head>
 <body class="bg-slate-50 text-slate-900">
   <!-- Header -->
   <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
     <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a class="flex items-center gap-2" href="index.html">
+      <a class="flex items-center gap-2" href="welcome.html">
         <img src="assets/logo-danone.png" alt="Danone+" class="h-9 w-auto" />
-       
+        <span class="font-semibold">Danone+</span>
       </a>
-      <nav class="text-sm text-slate-600 hidden sm:flex gap-6">
-       <a href="welcome.html" class="hover:text-slate-900">Bienvenida</a>
-       <a href="welcome.html" class="hover:text-slate-900">Bienvenida</a>
-       <a href="login.html" class="hover:text-slate-900">Login</a>
-       <a href="onboarding.html" class="hover:text-slate-900">Onboarding</a>
-       <a href="recetas.html" class="hover:text-slate-900">Recetas</a>
-       <a href="carrito.html" class="hover:text-slate-900">Carrito</a>
+      <nav class="text-sm text-slate-600 hidden sm:flex gap-6 items-center">
+        <a href="welcome.html" class="hover:text-slate-900">Bienvenida</a>
+        <a href="login.html" class="hover:text-slate-900">Login</a>
+        <a href="onboarding.html" class="hover:text-slate-900">Onboarding</a>
+        <a href="recetas.html" class="font-medium text-slate-900">Recetas</a>
+        <a href="carrito.html" class="hover:text-slate-900">Carrito</a>
+        <button id="logout" class="text-red-600 ml-4">Cerrar sesión</button>
       </nav>
     </div>
   </header>
@@ -46,9 +46,25 @@
 
   <script>
     const $ = (s)=>document.querySelector(s);
-    function formatMoney(n){ return `$${n.toFixed(2)}`; }
+    const formatMoney = (n)=> `$${n.toFixed(2)}`;
 
-    // Productos y recetas (simulados)
+    // Guard simple: requiere perfil (puedes quitarlo si quieres explorar sin perfil)
+    const profile = JSON.parse(localStorage.getItem("profile") || "null");
+    if(!profile){
+      alert("Primero completa tu perfil (Onboarding).");
+      window.location.href = "onboarding.html";
+    }
+
+    // Prefill de saludo y pista
+    const hello = $("#hello");
+    const hint  = $("#hint");
+    if(profile){
+      const auth = JSON.parse(localStorage.getItem("authUser") || "null");
+      hello.textContent = auth?.name || profile.name || "Usuario";
+      hint.textContent  = `Meta: ${labelGoal(profile.goal)} · Peso: ${profile.weight} kg`;
+    }
+
+    // Catálogo simulado
     const PRODUCTS = {
       "Activia Natural 1L": 42.0,
       "Danone Yogurt Natural 1L": 38.0,
@@ -67,7 +83,7 @@
       ],
       "bajar-peso": [
         { name: "Smoothie Yogurt + Avena", desc: "Sacia y aporta proteína moderada.", products: ["Danone Yogurt Natural 1L", "Avena Bebida 1L", "Fruta Congelada Mixta 500g"] },
-        { name: "Hidratación dirigida", desc: "Mantén volumen y baja calorías.", products: ["Bonafont 1.5L", "Bonafont Levité 600ml"] }
+        { name: "Hidratación dirigida", desc: "Volumen con pocas calorías.", products: ["Bonafont 1.5L", "Bonafont Levité 600ml"] }
       ],
       "hidratarme-mas": [
         { name: "Plan Hidratación Bonafont", desc: "Objetivos diarios de agua.", products: ["Bonafont 1.5L", "Bonafont Levité 600ml"] },
@@ -79,17 +95,6 @@
       ]
     };
 
-    // Perfil
-    const profile = JSON.parse(localStorage.getItem("profile") || "null");
-    if(!profile){
-      alert("Primero completa tu perfil en Inicio.");
-      window.location.href = "index.html";
-    } else {
-      $("#hello").textContent = profile.name;
-      $("#hint").textContent = `Meta: ${labelGoal(profile.goal)} · Peso: ${profile.weightKg} kg`;
-      renderRecipes(profile.goal);
-    }
-
     function labelGoal(g){
       return {
         "mejorar-digestion":"Mejorar digestión",
@@ -100,47 +105,48 @@
     }
 
     // Render de recetas
-    function renderRecipes(goal){
-      const recipes = RECIPES_BY_GOAL[goal] || [];
-      const grid = $("#recipes-grid");
-      grid.innerHTML = "";
+    const grid = $("#recipes-grid");
+    const goal = profile?.goal || "mejorar-digestion";
+    const recipes = RECIPES_BY_GOAL[goal] || [];
 
-      recipes.forEach((r, idx)=>{
-        const price = r.products.reduce((s, p)=> s + (PRODUCTS[p] || 0), 0);
-        const card = document.createElement("article");
-        card.className = "bg-white rounded-2xl shadow border border-slate-200 p-5 flex flex-col";
-        card.innerHTML = `
-          <div class="h-28 rounded-xl bg-slate-100 mb-3"></div>
-          <h3 class="text-lg font-semibold">${r.name}</h3>
-          <p class="text-slate-600 text-sm mt-1">${r.desc}</p>
-          <div class="mt-3">
-            <p class="text-sm font-medium">Productos Danone:</p>
-            <ul class="mt-1 text-sm text-slate-700 list-disc list-inside">
-              ${r.products.map(p=>`<li>${p} <span class="text-slate-500">· ${formatMoney(PRODUCTS[p] || 0)}</span></li>`).join("")}
-            </ul>
-          </div>
-          <div class="mt-4 flex items-center justify-between">
-            <span class="text-sm text-slate-600">Kit estimado: <strong>${formatMoney(price)}</strong></span>
-            <button class="rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium px-4 py-2">Agregar al carrito</button>
-          </div>
-        `;
-        card.querySelector("button").addEventListener("click", ()=>{
-          addProductsToCart(r.products);
-          alert("Productos de la receta agregados al carrito ✅");
-        });
-        grid.appendChild(card);
+    recipes.forEach((r)=>{
+      const price = r.products.reduce((s,p)=> s + (PRODUCTS[p] || 0), 0);
+      const card = document.createElement("article");
+      card.className = "bg-white rounded-2xl shadow border border-slate-200 p-5 flex flex-col";
+      card.innerHTML = `
+        <div class="h-28 rounded-xl bg-slate-100 mb-3"></div>
+        <h3 class="text-lg font-semibold">${r.name}</h3>
+        <p class="text-slate-600 text-sm mt-1">${r.desc}</p>
+        <div class="mt-3">
+          <p class="text-sm font-medium">Productos Danone:</p>
+          <ul class="mt-1 text-sm text-slate-700 list-disc list-inside">
+            ${r.products.map(p=>`<li>${p} <span class="text-slate-500">· ${formatMoney(PRODUCTS[p] || 0)}</span></li>`).join("")}
+          </ul>
+        </div>
+        <div class="mt-4 flex items-center justify-between">
+          <span class="text-sm text-slate-600">Kit estimado: <strong>${formatMoney(price)}</strong></span>
+          <button class="add rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium px-4 py-2">Agregar al carrito</button>
+        </div>
+      `;
+      card.querySelector(".add").addEventListener("click", ()=>{
+        addProductsToCart(r.products);
+        alert("Productos de la receta agregados al carrito ✅");
       });
-    }
+      grid.appendChild(card);
+    });
 
-    // Carrito en localStorage
+    // Carrito con localStorage
     function addProductsToCart(products){
       const cart = JSON.parse(localStorage.getItem("cart") || "{}");
-      products.forEach(p=>{
-        cart[p] = (cart[p] || 0) + 1;
-      });
+      products.forEach(p=> cart[p] = (cart[p] || 0) + 1 );
       localStorage.setItem("cart", JSON.stringify(cart));
     }
+
+    // Logout
+    $("#logout").addEventListener("click", ()=>{
+      localStorage.clear();
+      window.location.href="welcome.html";
+    });
   </script>
 </body>
 </html>
-
