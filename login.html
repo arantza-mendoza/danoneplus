@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Danone+ · Iniciar sesión</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 flex items-center justify-center min-h-screen">
+  <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 w-full max-w-md">
+    <div class="text-center">
+      <img src="assets/logo-danone.png" alt="Danone+" class="mx-auto h-16 w-auto mb-4" />
+      <h1 class="text-2xl font-semibold">Iniciar sesión</h1>
+      <p class="text-slate-600 text-sm mt-1">Accede para continuar con tu experiencia</p>
+    </div>
+
+    <form id="loginForm" class="mt-6 grid gap-4">
+      <div>
+        <label for="email" class="block font-medium">Correo electrónico</label>
+        <input id="email" type="email" required placeholder="ejemplo@correo.com" 
+               class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500" />
+      </div>
+
+      <div>
+        <label for="password" class="block font-medium">Contraseña</label>
+        <input id="password" type="password" required placeholder="********"
+               class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500" />
+      </div>
+
+      <button type="submit" class="w-full rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-medium py-3 transition">
+        Entrar
+      </button>
+    </form>
+
+    <p id="loginMsg" class="hidden mt-3 text-sm text-red-600 text-center">Correo o contraseña inválidos.</p>
+  </div>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const msg = document.getElementById("loginMsg");
+
+    form.addEventListener("submit", (e)=>{
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      // Validación simulada
+      if(email && password){
+        localStorage.setItem("userEmail", email);
+        window.location.href = "index.html"; // redirige al formulario de perfil
+      } else {
+        msg.classList.remove("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
